@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>臨時列車の登録</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%231f77a6%22/%3E%3Cg stroke=%22%23fff%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M10 15H54M10 27H54M10 39H54M10 51H54%22 stroke-width=%221.6%22 opacity=%22.55%22/%3E%3Cpath d=%22M12 12L28 27H34L52 53%22 stroke-width=%224%22/%3E%3Cpath d=%22M14 53L30 39H36L50 12%22 stroke-width=%224%22 stroke-dasharray=%220%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEdUlEQVR4nMSXe1BUVRzHv+e6G0LykOHpgwUJJSZIMBuEkMiQyKIcS6UMTUmnqCmrCf9oev2FTmaN1UwEOTRhZRExjMPDQXsAwQzVgoJAoAQLLtDAQui6sNzrOUfXgX1eWV0/M3fm3HvO+f1+5/we51wFZhD6WqmP6KbfC0jxRMJKEBKAm4EkDUkEaoA0CAb3Qz0fb9SZuoipsST3m3RBEgoIwSLcQiQJAyIRszX7t1VcN2BpbnGaAFIJFzIN8VFmBAnZV7wQEloJSDBcCN+JKUW0AiLZTrfdpcoZzNWC0pglsIAz7/zpxVT+BHi6wxkEquW73evw+1sZNkZI8QINAgsDlAoBcSo//JyzHiG+CzBXtt4fjvhlAdBPGa32M90KuheqmR9XBHmj4nQfX/0iHw9UvJqOovpODE9cxo3AVvZ6agxvtw2M4vnEFajt0uKfwbEZFhAVUeUelawJWOCmwNe7UhAX4odx/RSeKajBmf5RyCU7KRJvb4hF1/A4Uj86zoLOuqG2BEwYjMjMP4m6rkF4uStxbM/DSAgPhBzclfOQkxLF2werWmwqt2sAw2CcxvavTuF4Sy887lCgaOeDSI1aDEfseiASCz3ccPaCDhVn+uyOFRzIglGUkHO0Dt83nYNynoAvnkvCEytVNsd7zldid/LdvH2gqtmReCggk9wfG2ksTOIF6ttPtibw2Bi9NMn7as7243T/CG/vocq9qBHNmhGcah9wKNciCFkWJIQH2ZywNiIIKZGzjwuROjn/t3Zu4N7UaL5TR+o60TsyMWucRRbAyg50aMf4Y4sjdR3YEBOCiABv/r7M3xMZ96qwjhrFFDDl9d2DeL/8T8hBtgtmwoLSBC12CPPzRPRiX4RfMyqvQi1blsMgdARLsZziOhqsIi8+Tf8Oo0UzInu+0wYwJmm6CuSqKFa6WRGTy5xcwEheHoxYmgkMVu/Z6of/v8xL+HsZ9+HNHxpkybEwwFEWMB6iAZcUYTmmTN2DbfEReGpVGHeJeTA7nQUKusyDm9dw5Sz1Cms7cNFw9aTrHh5DeXMvGs8P4custUi/ZykOVDZj5KIB9pDtgjtpKS7ckXzteJ1GdtGv/Jww50RbP0r+Oo9NcWE4tGUNLeW/2JUrKwiDvNxRSu8GTDnz86bPq60qN/FuWRP6dZd4nLA7gVMGRAX7oPyVR7A80Bud1H+PH65E2wWd3TnsJH3j2B88Rd95LI7fK+ZkQOJdgSh5aT38Peej4dwQNn5WDe24HnJg4wtr2/kpejgzkRcsa7AYYHt5/aA3ZUHMEl88GRvK7+2ssJxo02Dz6nDcCNoxPf6jN6lV9HpXkJWMvEq1eRYMKiRJUhNC0kxfTFnQ9sHTXPmnJ1vxYXUL5kp9txZlL6dhdai/RQoy3WwHWOFOM5+YW9JIK5yIqlYNnIHFy5b8Gn5LsoKaBO37NtRNFP+mTvKBK5EknUEQYgVtXmbPtCDshIsRCXYw3TwLNHmZpexfjf0u4RbDdDBdffufLWPvs5LjdvyeXwEAAP//kF1bhgAAAAZJREFUAwCjT8CzC+giAAAAAABJRU5ErkJggg==">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<style>
+  :root{--b:#1f77a6;--ink:#1f2d3a;--mut:#567;--line:#cfdde8;--bad:#b00020;--ok:#16794a}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;color:var(--ink);background:#f2f6f9;font-size:15px;line-height:1.6}
+  h1{font-size:19px;margin:0}
+  h2{font-size:16px;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid var(--b)}
+  label{display:block;font-size:13px;color:var(--mut);margin:0 0 3px}
+  input,select{font:inherit;padding:8px;border:1px solid #9bb;border-radius:4px;background:#fff;color:var(--ink);max-width:100%}
+  input[type=checkbox]{width:18px;height:18px;padding:0;vertical-align:middle}
+  button{font:inherit;font-weight:700;padding:9px 20px;border:1px solid var(--b);background:var(--b);color:#fff;border-radius:4px;cursor:pointer}
+  button.sub{background:#fff;color:var(--b)} button.del{background:#fff;color:var(--bad);border-color:var(--bad)}
+  button:disabled{opacity:.5;cursor:default}
+  #login{max-width:360px;margin:12vh auto;background:#fff;border:1px solid var(--line);border-radius:6px;padding:22px}
+  #login input{width:100%;margin-bottom:12px}
+  #login button{width:100%}
+  .msg{min-height:1.5em;margin-top:10px;font-size:14px;white-space:pre-wrap}
+  .msg.bad,.bad-t{color:var(--bad)} .msg.ok,.ok-t{color:var(--ok)}
+  #main{max-width:1000px;margin:0 auto;padding:12px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+  section{background:#fff;border:1px solid var(--line);border-radius:6px;padding:14px;margin-bottom:14px}
+  .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .g>div>input,.g>div>select{width:100%}
+  .days label{display:inline-block;margin-right:14px;color:var(--ink);font-size:15px}
+  .hint{font-size:12px;color:var(--mut);margin-top:3px}
+  .scroll{max-height:55vh;overflow:auto;border:1px solid var(--line);border-radius:4px;margin-top:12px}
+  table{border-collapse:collapse;width:100%}
+  th,td{border-bottom:1px solid var(--line);padding:3px 8px;text-align:left}
+  thead th{position:sticky;top:0;background:#e8f1f7;z-index:1;font-size:13px}
+  #st td.t{width:1%;white-space:nowrap} #st input.xt{width:96px}
+  #st tr.on{background:#eef7ee} #st input.bad{border-color:var(--bad);background:#fff0f0}
+  #sum{margin-top:10px;font-size:15px;min-height:1.6em} #sum.bad{color:var(--bad)}
+  .act{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
+  #list td.o{white-space:nowrap} #list tr.past{color:#899}
+  #list button{padding:4px 10px;font-size:13px;margin-right:4px}
+  @media(max-width:600px){#st input.xt{width:78px}}
+</style>
+</head>
+<body>
+<div id="login">
+  <h1>臨時列車の登録</h1>
+  <p class="hint" style="margin:6px 0 14px">管理者のIDでログインしてください。</p>
+  <form id="lgForm" autocomplete="off">
+    <label for="lgId">ID</label><input id="lgId" type="text" autocomplete="username" autocapitalize="none" spellcheck="false">
+    <label for="lgPw">パスワード</label><input id="lgPw" type="password" autocomplete="current-password">
+    <button id="lgBtn" type="submit">ログイン</button>
+  </form>
+  <div id="lgMsg" class="msg" role="status" aria-live="polite"></div>
+</div>
+
+<div id="main" hidden>
+  <header><h1>臨時列車の登録</h1><button type="button" class="sub" id="logout">ログアウト</button></header>
+
+  <section>
+    <h2 id="formTitle">新しく登録する</h2>
+    <div class="g">
+      <div><label for="fDate">運転日 <b class="bad-t">*</b></label><input type="date" id="fDate"></div>
+      <div><label for="fNo">列車番号</label><input type="text" id="fNo" maxlength="20" placeholder="例 9101"></div>
+      <div><label for="fType">種別</label><select id="fType"></select></div>
+      <div><label for="fDash">線の種類</label><select id="fDash"></select></div>
+      <div><label for="fLw">線の太さ</label><select id="fLw"></select></div>
+      <div><label for="fNote">備考</label><input type="text" id="fNote" maxlength="100" placeholder="例 団体臨時"></div>
+    </div>
+    <div class="days" style="margin-top:12px"><label style="display:block">表示するダイヤ <b class="bad-t">*</b></label>
+      <label><input type="checkbox" id="d_weekday"> 平日</label><label><input type="checkbox" id="d_holiday"> 休日</label>
+      <div class="hint" id="dayHint">運転日を入れると、その日のダイヤ(平日・休日)が自動で選ばれます。</div></div>
+    <div class="hint" style="margin-top:12px">時刻を入れた駅を通ります(空欄の駅は飛ばします)。「1347」「13:47」「13:47:30」のどれでも入れられます。着か発の片方だけなら、同じ時刻になります。通過にチェックすると、通過時刻として扱います。</div>
+    <div class="scroll"><table id="st"><thead><tr><th>駅</th><th>着</th><th>発</th><th>通過</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div id="sum" role="status"></div>
+    <div class="act"><button type="button" id="save">登録する</button><button type="button" class="sub" id="clear">入力をクリア</button><span id="saveMsg" class="msg" style="margin:0"></span></div>
+  </section>
+
+  <section>
+    <h2>登録済みの臨時列車</h2>
+    <label style="display:inline-block;color:var(--ink);font-size:14px"><input type="checkbox" id="showPast"> 運転日を過ぎたものも表示</label>
+    <div class="scroll" style="max-height:none"><table id="list"><thead><tr><th>運転日</th><th>列車</th><th>区間</th><th>備考</th><th></th></tr></thead><tbody id="listBody"></tbody></table></div>
+    <div id="listMsg" class="msg"></div>
+  </section>
+</div>
+
+<script>
+'use strict';
+const GAS_URL="https://script.google.com/macros/s/AKfycbyIF4vrLdoJFMoAJY89Cgrbb1VrYxyRKE_SM3BD7w0PYupJ-RpnKOMDaJST_VgzzcT0/exec";
+const $=id=>document.getElementById(id);
+const S={tok:'',dev:null,w:null,api:null,editing:null,list:[]};
+const mk=(tag,cls,txt)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!==undefined) e.textContent=txt; return e; };
+const todayStr=()=>{ const t=new Date(), z=n=>String(n).padStart(2,'0'); return t.getFullYear()+'-'+z(t.getMonth()+1)+'-'+z(t.getDate()); };
+
+/* 端末ID: ログイン画面(index.html)と同じ場所・同じ作り方(同じブラウザなら同じ端末として扱われる) */
+function devId(){
+  try{
+    let v=localStorage.getItem('gy_dev');
+    if(!/^[0-9a-f]{32}$/.test(v||'')){
+      const a=new Uint8Array(16); crypto.getRandomValues(a);
+      v=Array.from(a,b=>('0'+b.toString(16)).slice(-2)).join(''); localStorage.setItem('gy_dev',v);
+      if(localStorage.getItem('gy_dev')!==v) return null;
+    }
+    return v;
+  }catch(_){ return null; }
+}
+async function post(body){
+  const r=await fetch(GAS_URL,{method:'POST',body:JSON.stringify(body),redirect:'follow',cache:'no-store'});
+  return r.json();
+}
+async function gas(a,extra){
+  let res;
+  try{ res=await post(Object.assign({a:a,tok:S.tok,dev:S.dev},extra)); }
+  catch(_){ const e=new Error('接続できません。通信状態を確認してください'); e.net=true; throw e; }
+  if(res&&res.tok) S.tok=res.tok;
+  if(!res||!res.ok){
+    if(res&&res.code==='auth'){ alert('ログインの有効期限が切れました。ログインし直してください。'); location.reload(); }
+    const e=new Error((res&&res.msg)||'エラーが発生しました'); throw e;
+  }
+  return res;
+}
+
+/* ---------- ログイン ---------- */
+$('lgForm').addEventListener('submit',async ev=>{
+  ev.preventDefault();
+  const msg=$('lgMsg'), btn=$('lgBtn'), say=(t,bad)=>{ msg.textContent=t; msg.className='msg'+(bad?' bad':''); };
+  const dev=devId(); if(!dev){ say('このブラウザでは使えません(端末の登録ができません)',true); return; }
+  btn.disabled=true; say('確認中…');
+  try{
+    const res=await post({a:'login',id:$('lgId').value.trim(),pw:$('lgPw').value,dev:dev});
+    if(!res||!res.ok||!res.key){ say((res&&res.msg)||'ログインできません',true); $('lgPw').value=''; return; }
+    if(!res.tok){ say('ログイン管理サーバー(GAS)が、まだ臨時列車の登録に対応していません。README の手順でGASを更新してください',true); return; }
+    if(!res.adm){ say('このIDは管理者ではありません',true); $('lgPw').value=''; return; }
+    S.tok=res.tok; S.dev=dev;
+    say('運行図表の駅の情報を読み込んでいます…');
+    await loadDiagram(res.key);
+    buildForm(); $('login').hidden=true; $('main').hidden=false;
+    await refresh();
+  }catch(e){ say(e&&e.diag?e.message:'接続できません。通信状態を確認してください',true); console.warn(e); }
+  finally{ btn.disabled=false; }
+});
+$('logout').addEventListener('click',()=>location.reload());
+
+/* 暗号化された運行図表を開いて、駅の一覧・種別・時刻の読み取りを借りる(ダイヤ改正にも自動で追従する) */
+async function loadDiagram(keyHex){
+  const fail=t=>{ const e=new Error(t); e.diag=true; return e; };
+  const te=new TextEncoder(), key=Uint8Array.from(keyHex.match(/../g),x=>parseInt(x,16)), b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+  const raw=new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array([...te.encode('chichibu-enc-v1'),...key])));
+  const k=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['decrypt']);
+  const r=await fetch('data/diagram.enc.json',{cache:'no-cache'}); if(!r.ok) throw fail('運行図表のデータを読み込めません');
+  const o=await r.json(); let html;
+  try{ html=new TextDecoder('utf-8').decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(o.iv),additionalData:te.encode('diagram')},k,b64(o.ct))); }
+  catch(_){ throw fail('運行図表のデータを復号できません。管理者に連絡してください'); }
+  const f=document.createElement('iframe'); f.title='運行図表(駅の情報の読み取り用)'; f.setAttribute('aria-hidden','true');
+  f.style.cssText='position:absolute;left:-9999px;top:0;width:1200px;height:800px;border:0;visibility:hidden';
+  await new Promise((ok,ng)=>{ f.onload=ok; f.onerror=ng; f.srcdoc=html; document.body.appendChild(f); setTimeout(()=>ng(new Error('timeout')),20000); }).catch(()=>{ throw fail('運行図表を開けません'); });
+  const w=f.contentWindow, api=w&&w.__chichibu;
+  if(!api||!api.stations||!api.types||typeof w.xParse!=='function'||typeof w.xStr!=='function') throw fail('運行図表の構成が想定と違います。管理者に連絡してください');
+  S.w=w; S.api=api;
+}
+
+/* ---------- 入力フォーム ---------- */
+function buildForm(){
+  const w=S.w, api=S.api;
+  $('fType').replaceChildren(...Object.entries(api.types).map(([k,v])=>{ const o=mk('option',null,v.label); o.value=k; return o; }));
+  $('fType').value=api.types.rinji?'rinji':Object.keys(api.types)[0];
+  const opt=a=>a.map(x=>{ const o=mk('option',null,x[1]); o.value=x[0]; return o; });
+  $('fDash').replaceChildren(...opt(w.eval('DASHES'))); $('fLw').replaceChildren(...opt(w.eval('WIDTHS')));
+  $('rows').replaceChildren(...api.stations.map((s,i)=>{
+    const tr=mk('tr'); tr.dataset.i=i;
+    const td=(cls)=>{ const c=mk('td',cls); tr.appendChild(c); return c; };
+    td().textContent=s.n;
+    for(const c of ['xa','xd']){ const i2=mk('input','xt '+c); i2.type='text'; i2.setAttribute('inputmode','numeric'); i2.autocomplete='off'; i2.setAttribute('aria-label',s.n+(c==='xa'?'の着時刻':'の発時刻')); td('t').appendChild(i2); }
+    const p=mk('input','xp'); p.type='checkbox'; p.setAttribute('aria-label',s.n+'は通過'); td('t').appendChild(p);
+    return tr;
+  }));
+  clearForm();
+}
+function onDate(){
+  const v=$('fDate').value; if(!/^\d{4}-\d{2}-\d{2}$/.test(v)||!S.api) return;
+  const [y,m,d]=v.split('-').map(Number), k=S.api.todayDay(new Date(y,m-1,d));
+  $('d_weekday').checked=k==='weekday'; $('d_holiday').checked=k==='holiday';
+  $('dayHint').textContent='この日は'+(k==='holiday'?'休日(土日祝)':'平日')+'ダイヤです。両方のダイヤに出したいときは、もう一方にもチェックしてください。';
+}
+/* 運行図表の臨時列車入力フォームと同じ規則: 空欄の駅は飛ばす / 片方だけなら同じ時刻 / 通過は着=発 / 時刻順に並べて重なりを確認 */
+function collect(){
+  const P=S.w.xParse, st=S.api.stations, stops=[]; let bad=null;
+  document.querySelectorAll('#rows tr').forEach(tr=>{
+    const i=+tr.dataset.i, ea=tr.querySelector('.xa'), ed=tr.querySelector('.xd'), ps=tr.querySelector('.xp').checked;
+    ea.classList.remove('bad'); ed.classList.remove('bad');
+    tr.classList.toggle('on',!!(ea.value.trim()||ed.value.trim()));
+    let a=P(ea.value), d=P(ed.value);
+    if(Number.isNaN(a)){ ea.classList.add('bad'); bad=bad||st[i].n+'の着時刻が読み取れません'; return; }
+    if(Number.isNaN(d)){ ed.classList.add('bad'); bad=bad||st[i].n+'の発時刻が読み取れません'; return; }
+    if(a===null&&d===null) return;
+    if(a===null) a=d; if(d===null) d=a;
+    if(ps){ stops.push([i,a,a,1]); return; }
+    if(d<a){ ed.classList.add('bad'); bad=bad||st[i].n+'の発時刻が着時刻より前です'; return; }
+    stops.push([i,a,d]);
+  });
+  if(bad) return {error:bad};
+  if(stops.length<2) return {error:'時刻を入れた駅が2つ以上必要です'};
+  stops.sort((p,q)=>p[1]-q[1]||p[2]-q[2]);
+  for(let k=1;k<stops.length;k++){ if(stops[k][1]<stops[k-1][2]) return {error:st[stops[k][0]].n+'の時刻が重なっています'}; }
+  return {stops};
+}
+function route(stops){ const st=S.api.stations, a=stops[0], z=stops[stops.length-1], t=S.w.xStr; return st[a[0]].n+' '+t(a[2])+' 発 → '+st[z[0]].n+' '+t(z[1])+' 着'; }
+function sum(){
+  const c=collect(), el=$('sum');
+  if(c.error){ el.textContent=c.error; el.className='bad'; }
+  else{ el.textContent='この列車: '+route(c.stops)+'('+c.stops.length+'駅)'; el.className=''; }
+}
+function flash(t,bad){ const m=$('saveMsg'); m.textContent=t; m.className='msg '+(bad?'bad':'ok'); }
+function clearForm(){
+  S.editing=null; $('formTitle').textContent='新しく登録する'; $('save').textContent='登録する'; flash('');
+  ['fDate','fNo','fNote'].forEach(i=>$(i).value=''); $('fType').value=S.api.types.rinji?'rinji':Object.keys(S.api.types)[0]; $('fDash').value='auto'; $('fLw').value='auto';
+  $('d_weekday').checked=false; $('d_holiday').checked=false; $('dayHint').textContent='運転日を入れると、その日のダイヤ(平日・休日)が自動で選ばれます。';
+  document.querySelectorAll('#rows tr').forEach(tr=>{ tr.querySelector('.xa').value=''; tr.querySelector('.xd').value=''; tr.querySelector('.xp').checked=false; });
+  sum(); $('sum').textContent=''; 
+}
+function fill(r){
+  clearForm();
+  $('fDate').value=r.opDate; $('fNo').value=r.no||''; $('fType').value=r.type; $('fDash').value=r.dash||'auto'; $('fLw').value=r.lw||'auto'; $('fNote').value=r.note||'';
+  $('d_weekday').checked=(r.days||[]).includes('weekday'); $('d_holiday').checked=(r.days||[]).includes('holiday');
+  r.stops.forEach(([i,a,d,ps])=>{ const tr=document.querySelector('#rows tr[data-i="'+i+'"]'); if(!tr) return; tr.querySelector('.xa').value=S.w.xStr(a); tr.querySelector('.xd').value=S.w.xStr(d); tr.querySelector('.xp').checked=!!ps; });
+  sum(); window.scrollTo({top:0,behavior:'smooth'});
+}
+async function save(){
+  const c=collect(); sum();
+  if(c.error){ flash(c.error,true); return; }
+  const opDate=$('fDate').value;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(opDate)){ flash('運転日を入れてください',true); return; }
+  const days=['weekday','holiday'].filter(k=>$('d_'+k).checked);
+  if(!days.length){ flash('表示するダイヤ(平日・休日)を選んでください',true); return; }
+  const t={no:$('fNo').value.trim(),type:$('fType').value,dash:$('fDash').value,lw:$('fLw').value,note:$('fNote').value.trim(),opDate:opDate,days:days,stops:c.stops};
+  if(S.editing) t.id=S.editing;
+  if(t.no&&S.list.some(r=>r.opDate===opDate&&r.no===t.no&&r.id!==S.editing)&&!confirm('同じ運転日・列車番号('+opDate+' '+t.no+')の登録があります。それでも追加しますか?')) return;
+  const b=$('save'); b.disabled=true; flash('送信中…');
+  try{
+    await gas('xput',{train:t});
+    const did=S.editing?'更新しました':'登録しました', line=opDate+' '+(t.no||'番号なし')+'  '+route(c.stops);
+    clearForm(); flash(did+': '+line); await refresh();
+  }catch(e){ flash(e.message,true); }
+  finally{ b.disabled=false; }
+}
+
+/* ---------- 登録済みの一覧 ---------- */
+async function refresh(){
+  const m=$('listMsg'); m.textContent=''; m.className='msg';
+  try{ S.list=(await gas('xlist')).trains; renderList(); }
+  catch(e){ m.textContent=e.message; m.className='msg bad'; }
+}
+function renderList(){
+  const body=$('listBody'), today=todayStr(), all=$('showPast').checked, rows=S.list.filter(r=>all||r.opDate>=today);
+  body.replaceChildren(...rows.map(r=>{
+    const tr=mk('tr',r.opDate<today?'past':''); tr.appendChild(mk('td','o',r.opDate+(r.opDate===today?'(今日)':'')));
+    tr.appendChild(mk('td',null,(r.no||'番号なし')+'  '+(S.api.types[r.type]?S.api.types[r.type].label:r.type)));
+    tr.appendChild(mk('td',null,route(r.stops))); tr.appendChild(mk('td',null,r.note||''));
+    const op=mk('td','o'), btn=(t,cls,fn)=>{ const b=mk('button',cls,t); b.type='button'; b.addEventListener('click',fn); op.appendChild(b); };
+    btn('編集','sub',()=>{ fill(r); S.editing=r.id; $('formTitle').textContent='登録内容を変更する'; $('save').textContent='更新する'; });
+    btn('複製','sub',()=>{ fill(r); $('fDate').value=''; $('d_weekday').checked=false; $('d_holiday').checked=false; flash('複製しました。運転日を入れて登録してください'); });
+    btn('削除','del',async()=>{ if(!confirm(r.opDate+' '+(r.no||'番号なし')+' の登録を削除します。よろしいですか?')) return; try{ await gas('xdel',{id:r.id}); if(S.editing===r.id) clearForm(); await refresh(); }catch(e){ $('listMsg').textContent=e.message; $('listMsg').className='msg bad'; } });
+    tr.appendChild(op); return tr;
+  }));
+  if(!rows.length){ const tr=mk('tr'), td=mk('td',null,'登録はありません'); td.colSpan=5; tr.appendChild(td); body.appendChild(tr); }
+}
+
+$('fDate').addEventListener('change',onDate);
+$('rows').addEventListener('input',sum); $('rows').addEventListener('change',sum);
+$('save').addEventListener('click',save); $('clear').addEventListener('click',clearForm); $('showPast').addEventListener('change',renderList);
+</script>
+</body>
+</html>
