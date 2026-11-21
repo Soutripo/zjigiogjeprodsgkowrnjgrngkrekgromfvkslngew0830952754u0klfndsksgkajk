@@ -36,7 +36,7 @@
   .scroll{max-height:55vh;overflow:auto;border:1px solid var(--line);border-radius:4px;margin-top:12px}
   table{border-collapse:collapse;width:100%}
   th,td{border-bottom:1px solid var(--line);padding:3px 8px;text-align:left}
-  thead th{position:sticky;top:0;background:#e8f1f7;z-index:1;font-size:13px}
+  thead th{position:sticky;top:0;background:#e8f1f7;z-index:1;font-size:13px;white-space:nowrap}
   #st td.t{width:1%;white-space:nowrap} #st input.xt{width:96px}
   #st tr.on{background:#eef7ee} #st input.bad{border-color:var(--bad);background:#fff0f0}
   #sum{margin-top:10px;font-size:15px;min-height:1.6em} #sum.bad{color:var(--bad)}
@@ -211,6 +211,7 @@ function collect(){
 function route(stops){ const st=S.api.stations, a=stops[0], z=stops[stops.length-1], t=S.w.xStr; return st[a[0]].n+' '+t(a[2])+' 発 → '+st[z[0]].n+' '+t(z[1])+' 着'; }
 function sum(){
   const c=collect(), el=$('sum');
+  if($('saveMsg').classList.contains('bad')) flash('');                 // 入力を直したら、前回のエラーは消す
   if(c.error){ el.textContent=c.error; el.className='bad'; }
   else{ el.textContent='この列車: '+route(c.stops)+'('+c.stops.length+'駅)'; el.className=''; }
 }
