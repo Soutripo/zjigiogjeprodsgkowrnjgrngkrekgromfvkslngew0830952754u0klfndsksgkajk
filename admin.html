@@ -43,6 +43,24 @@
   .act{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
   #list td.o{white-space:nowrap} #list tr.past{color:#899}
   #list button{padding:4px 10px;font-size:13px;margin-right:4px}
+  .dw{max-width:100%} .dwrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center} .dwrow input{width:10.5em}
+  .dwmsg{min-height:1.2em} .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .chip{display:inline-flex;align-items:center;gap:4px;background:#e8f1f7;border:1px solid var(--line);border-radius:14px;padding:1px 4px 1px 10px;font-size:13px}
+  .chip button{padding:0 7px;border:0;background:transparent;color:var(--mut);font-size:15px;line-height:1.5}
+  #xwTa{width:100%;min-height:90px;font:inherit;font-size:14px;padding:8px;border:1px solid #9bb;border-radius:4px;resize:vertical}
+  .xw-warn ul{margin:6px 0;padding-left:20px;font-size:13px;color:var(--bad)}
+  #xwResult{margin-top:10px;border:1px solid var(--line);border-radius:4px;max-height:70vh;overflow:auto}
+  #xwResult:empty{display:none}
+  .xw-h{position:sticky;top:0;z-index:2;background:#e8f1f7;font-size:13px;font-weight:700;padding:5px 12px;border-bottom:1px solid var(--line)}
+  .xw-card{padding:10px 12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+  .xw-top{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--ink);margin:0}
+  .xw-dupe{font-size:11px;padding:1px 7px;border-radius:9px;background:#f4ecd8;border:1px solid #d9c9a0;color:#6a5420}
+  .xw-sub{font-size:13px;color:var(--mut);padding-left:26px}
+  .xw-row,.xw-dates,.xw-card details{padding-left:26px;font-size:13px}
+  .xw-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+  .xw-row>label{display:flex;flex-direction:column;gap:2px;margin:0} .xw-row>label.in{flex-direction:row;align-items:center;gap:4px;color:var(--ink);font-size:14px}
+  .xw-row input[type=text]{width:10em} .xw-lbl{font-size:13px;color:var(--mut);margin-bottom:3px}
+  .xw-det{margin-top:3px;line-height:1.6;word-break:break-all}
   @media(max-width:600px){#st input.xt{width:78px}}
 </style>
 </head>
@@ -63,8 +81,9 @@
 
   <section>
     <h2 id="formTitle">新しく登録する</h2>
+    <div style="margin-bottom:12px"><label>運転日 <b class="bad-t">*</b></label><div id="dwMount"></div>
+      <div class="hint">年は4桁です。5桁目を打つと月に、月の次は日に移ります。「〜」の右に最終日を入れると、その間の日をまとめて追加できます。</div></div>
     <div class="g">
-      <div><label for="fDate">運転日 <b class="bad-t">*</b></label><input type="date" id="fDate"></div>
       <div><label for="fNo">列車番号</label><input type="text" id="fNo" maxlength="20" placeholder="例 9101"></div>
       <div><label for="fType">種別</label><select id="fType"></select></div>
       <div><label for="fDash">線の種類</label><select id="fDash"></select></div>
@@ -81,6 +100,19 @@
   </section>
 
   <section>
+    <h2>秩父鉄道のお知らせページから取り込む</h2>
+    <details>
+      <summary style="cursor:pointer;font-weight:700">ページをコピペして、時刻表を読み取る</summary>
+      <div class="hint" style="margin:8px 0;font-size:13px;line-height:1.7">秩父鉄道の臨時列車のお知らせページを開き、<b>全選択(Ctrl+A)→コピー(Ctrl+C)</b>して、下の欄に貼り付けてください(欄をクリックして Ctrl+V)。貼り付けると自動で時刻表を読み取ります。運転日が複数ある列車は、1日ずつの登録としてまとめて送ります。列車番号はページに載っていないため仮の名前を付けています(直せます)。</div>
+      <textarea id="xwTa" placeholder="ここにページ全体を貼り付け" spellcheck="false"></textarea>
+      <div class="act"><button type="button" id="xwParse">読み取る</button><button type="button" class="sub" id="xwReset">貼り付けをクリア</button><span id="xwMsg" class="msg" style="margin:0"></span></div>
+      <div id="xwWarn" class="xw-warn"></div>
+      <div id="xwResult"></div>
+      <div class="act"><button type="button" id="xwSave" disabled>登録する</button><button type="button" class="sub" id="xwAll">すべて選択</button><button type="button" class="sub" id="xwNone">すべて解除</button></div>
+    </details>
+  </section>
+
+  <section>
     <h2>登録済みの臨時列車</h2>
     <label style="display:inline-block;color:var(--ink);font-size:14px"><input type="checkbox" id="showPast"> 運転日を過ぎたものも表示</label>
     <div class="scroll" style="max-height:none"><table id="list"><thead><tr><th>運転日</th><th>列車</th><th>区間</th><th>備考</th><th></th></tr></thead><tbody id="listBody"></tbody></table></div>
@@ -92,7 +124,7 @@
 'use strict';
 const GAS_URL="https://script.google.com/macros/s/AKfycbyIF4vrLdoJFMoAJY89Cgrbb1VrYxyRKE_SM3BD7w0PYupJ-RpnKOMDaJST_VgzzcT0/exec";
 const $=id=>document.getElementById(id);
-const S={tok:'',dev:null,w:null,api:null,editing:null,list:[]};
+const S={tok:'',dev:null,w:null,api:null,editing:null,daysAuto:true,list:[]};
 const mk=(tag,cls,txt)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!==undefined) e.textContent=txt; return e; };
 const todayStr=()=>{ const t=new Date(), z=n=>String(n).padStart(2,'0'); return t.getFullYear()+'-'+z(t.getMonth()+1)+'-'+z(t.getDate()); };
 
@@ -180,12 +212,6 @@ function buildForm(){
   }));
   clearForm();
 }
-function onDate(){
-  const v=$('fDate').value; if(!/^\d{4}-\d{2}-\d{2}$/.test(v)||!S.api) return;
-  const [y,m,d]=v.split('-').map(Number), k=S.api.todayDay(new Date(y,m-1,d));
-  $('d_weekday').checked=k==='weekday'; $('d_holiday').checked=k==='holiday';
-  $('dayHint').textContent='この日は'+(k==='holiday'?'休日(土日祝)':'平日')+'ダイヤです。両方のダイヤに出したいときは、もう一方にもチェックしてください。';
-}
 /* 運行図表の臨時列車入力フォームと同じ規則: 空欄の駅は飛ばす / 片方だけなら同じ時刻 / 通過は着=発 / 時刻順に並べて重なりを確認 */
 function collect(){
   const P=S.w.xParse, st=S.api.stations, stops=[]; let bad=null;
@@ -217,35 +243,66 @@ function sum(){
 }
 function flash(t,bad){ const m=$('saveMsg'); m.textContent=t; m.className='msg '+(bad?'bad':'ok'); }
 function clearForm(){
-  S.editing=null; $('formTitle').textContent='新しく登録する'; $('save').textContent='登録する'; flash('');
-  ['fDate','fNo','fNote'].forEach(i=>$(i).value=''); $('fType').value=S.api.types.rinji?'rinji':Object.keys(S.api.types)[0]; $('fDash').value='auto'; $('fLw').value='auto';
-  $('d_weekday').checked=false; $('d_holiday').checked=false; $('dayHint').textContent='運転日を入れると、その日のダイヤ(平日・休日)が自動で選ばれます。';
+  S.editing=null; S.daysAuto=true; $('formTitle').textContent='新しく登録する'; $('save').textContent='登録する'; flash('');
+  ['fNo','fNote'].forEach(i=>$(i).value=''); $('fType').value=S.api.types.rinji?'rinji':Object.keys(S.api.types)[0]; $('fDash').value='auto'; $('fLw').value='auto';
+  $('d_weekday').checked=false; $('d_holiday').checked=false; dateW.set([]);
   document.querySelectorAll('#rows tr').forEach(tr=>{ tr.querySelector('.xa').value=''; tr.querySelector('.xd').value=''; tr.querySelector('.xp').checked=false; });
-  sum(); $('sum').textContent=''; 
+  sum(); $('sum').textContent='';
 }
 function fill(r){
   clearForm();
-  $('fDate').value=r.opDate; $('fNo').value=r.no||''; $('fType').value=r.type; $('fDash').value=r.dash||'auto'; $('fLw').value=r.lw||'auto'; $('fNote').value=r.note||'';
-  $('d_weekday').checked=(r.days||[]).includes('weekday'); $('d_holiday').checked=(r.days||[]).includes('holiday');
+  S.daysAuto=false; dateW.set([r.opDate]);
+  $('fNo').value=r.no||''; $('fType').value=r.type; $('fDash').value=r.dash||'auto'; $('fLw').value=r.lw||'auto'; $('fNote').value=r.note||'';
+  $('d_weekday').checked=(r.days||[]).includes('weekday'); $('d_holiday').checked=(r.days||[]).includes('holiday'); dayHint();
   r.stops.forEach(([i,a,d,ps])=>{ const tr=document.querySelector('#rows tr[data-i="'+i+'"]'); if(!tr) return; tr.querySelector('.xa').value=S.w.xStr(a); tr.querySelector('.xd').value=S.w.xStr(d); tr.querySelector('.xp').checked=!!ps; });
   sum(); window.scrollTo({top:0,behavior:'smooth'});
 }
+
+/* 運転日ごとのダイヤ(平日・休日)。ダイヤのチェックを自分で変えていないあいだは、日付ごとに自動で決める */
+function kindOf(s){ const [y,m,d]=s.split('-').map(Number); return S.api.todayDay(new Date(y,m-1,d)); }
+function dayHint(){
+  const ds=dateW.get(), h=$('dayHint');
+  if(!S.daysAuto){ h.textContent='チェックしたダイヤで、すべての運転日に登録します。'; return; }
+  if(!ds.length){ h.textContent='運転日を入れると、その日のダイヤ(平日・休日)が自動で選ばれます。'; return; }
+  const w=ds.filter(d=>kindOf(d)==='weekday').length, hd=ds.length-w;
+  h.textContent='運転日ごとのダイヤ(平日'+w+'日・休日'+hd+'日)で登録します。両方のダイヤに出したいときは、チェックを付け直してください。';
+}
+function onDatesChange(){
+  if(!S.api) return;
+  if(S.daysAuto){ const ks=new Set(dateW.get().map(kindOf)); $('d_weekday').checked=ks.has('weekday'); $('d_holiday').checked=ks.has('holiday'); }
+  dayHint();
+}
+
 async function save(){
   const c=collect(); sum();
   if(c.error){ flash(c.error,true); return; }
-  const opDate=$('fDate').value;
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(opDate)){ flash('運転日を入れてください',true); return; }
-  const days=['weekday','holiday'].filter(k=>$('d_'+k).checked);
-  if(!days.length){ flash('表示するダイヤ(平日・休日)を選んでください',true); return; }
-  const t={no:$('fNo').value.trim(),type:$('fType').value,dash:$('fDash').value,lw:$('fLw').value,note:$('fNote').value.trim(),opDate:opDate,days:days,stops:c.stops};
-  if(S.editing) t.id=S.editing;
-  if(t.no&&S.list.some(r=>r.opDate===opDate&&r.no===t.no&&r.id!==S.editing)&&!confirm('同じ運転日・列車番号('+opDate+' '+t.no+')の登録があります。それでも追加しますか?')) return;
-  const b=$('save'); b.disabled=true; flash('送信中…');
+  if(!dateW.commit()){ flash('運転日を直してください',true); return; }
+  const dates=dateW.get();
+  if(!dates.length){ flash('運転日を入れてください',true); return; }
+  const manual=['weekday','holiday'].filter(k=>$('d_'+k).checked);
+  if(!S.daysAuto&&!manual.length){ flash('表示するダイヤ(平日・休日)を選んでください',true); return; }
+  const base={no:$('fNo').value.trim(),type:$('fType').value,dash:$('fDash').value,lw:$('fLw').value,note:$('fNote').value.trim()};
+  const trains=dates.map((d,i)=>{
+    const t=Object.assign({},base,{opDate:d,days:S.daysAuto?[kindOf(d)]:manual.slice(),stops:c.stops.map(s=>s.slice())});
+    if(i===0&&S.editing) t.id=S.editing;
+    return t;
+  });
+  if(base.no){
+    const dup=trains.filter(t=>S.list.some(r=>r.opDate===t.opDate&&r.no===t.no&&r.id!==t.id)).map(t=>t.opDate);
+    if(dup.length&&!confirm('同じ運転日・列車番号('+base.no+')の登録がすでにあります: '+dup.slice(0,5).join(', ')+(dup.length>5?' ほか':'')+'\nそれでも追加しますか?')) return;
+  }
+  if(trains.length>30&&!confirm(trains.length+'日分を1日ずつ送信します。時間がかかります。続けますか?')) return;
+  const b=$('save'); b.disabled=true; let done=0;
   try{
-    await gas('xput',{train:t});
-    const did=S.editing?'更新しました':'登録しました', line=opDate+' '+(t.no||'番号なし')+'  '+route(c.stops);
-    clearForm(); flash(did+': '+line); await refresh();
-  }catch(e){ flash(e.message,true); }
+    for(const t of trains){ flash(trains.length>1?'送信中… '+(done+1)+'/'+trains.length:'送信中…'); await gas('xput',{train:t}); done++; }
+    const did=S.editing?'更新しました':'登録しました';
+    const when=trains.length>1?(trains.length+'日分('+dates[0]+' 〜 '+dates[dates.length-1]+')'):dates[0];
+    clearForm(); flash(did+': '+when+' '+(base.no||'番号なし')+'  '+route(c.stops)); await refresh();
+  }catch(e){
+    if(done){ S.editing=null; $('formTitle').textContent='新しく登録する'; $('save').textContent='登録する'; dateW.set(dates.slice(done)); }
+    flash((done?done+'日分は登録できました。続きで失敗しました: ':'')+e.message+(done?'\n登録できていない日だけを運転日に残しています。もう一度「登録する」を押してください。':''),true);
+    await refresh();
+  }
   finally{ b.disabled=false; }
 }
 
@@ -263,16 +320,329 @@ function renderList(){
     tr.appendChild(mk('td',null,route(r.stops))); tr.appendChild(mk('td',null,r.note||''));
     const op=mk('td','o'), btn=(t,cls,fn)=>{ const b=mk('button',cls,t); b.type='button'; b.addEventListener('click',fn); op.appendChild(b); };
     btn('編集','sub',()=>{ fill(r); S.editing=r.id; $('formTitle').textContent='登録内容を変更する'; $('save').textContent='更新する'; });
-    btn('複製','sub',()=>{ fill(r); $('fDate').value=''; $('d_weekday').checked=false; $('d_holiday').checked=false; flash('複製しました。運転日を入れて登録してください'); });
+    btn('複製','sub',()=>{ fill(r); S.editing=null; S.daysAuto=true; dateW.set([]); $('d_weekday').checked=false; $('d_holiday').checked=false; dayHint(); flash('複製しました。運転日を入れて登録してください'); });
     btn('削除','del',async()=>{ if(!confirm(r.opDate+' '+(r.no||'番号なし')+' の登録を削除します。よろしいですか?')) return; try{ await gas('xdel',{id:r.id}); if(S.editing===r.id) clearForm(); await refresh(); }catch(e){ $('listMsg').textContent=e.message; $('listMsg').className='msg bad'; } });
     tr.appendChild(op); return tr;
   }));
   if(!rows.length){ const tr=mk('tr'), td=mk('td',null,'登録はありません'); td.colSpan=5; tr.appendChild(td); body.appendChild(tr); }
 }
 
-$('fDate').addEventListener('change',onDate);
 $('rows').addEventListener('input',sum); $('rows').addEventListener('change',sum);
 $('save').addEventListener('click',save); $('clear').addEventListener('click',clearForm); $('showPast').addEventListener('change',renderList);
+
+/* ================================================================
+   運転日の入力: 年は4桁、5桁目を打つと月に移り、月の次は日に移る。「〜」で最終日を入れると、その間の日をまとめて追加できる
+   ================================================================ */
+const WD='日月火水木金土';
+const isoOf=(y,m,d)=>y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+function fmtDateDigits(raw){
+  const dg=String(raw||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/\D/g,'').slice(0,8);
+  let out=dg.slice(0,4), r=dg.slice(4);
+  if(r){
+    let m;
+    if(+r[0]>1){ m=r[0]; r=r.slice(1); }                         // 2〜9 は1桁の月(次の数字は日)
+    else if(r.length>=2){ m=(+r.slice(0,2)>12)?r[0]:r.slice(0,2); r=r.slice(m.length); }
+    else { m=r; r=''; }
+    out+='-'+m;
+    if(r){ const d=(+r[0]>3)?r[0]:r.slice(0,2); out+='-'+d; }     // 4〜9 は1桁の日
+  }
+  return out;
+}
+function normDate(s){
+  const t=String(s||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).trim();
+  const m=t.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/); if(!m) return null;
+  const y=+m[1], mo=+m[2], d=+m[3], dt=new Date(y,mo-1,d);
+  if(y<2000||dt.getFullYear()!==y||dt.getMonth()!==mo-1||dt.getDate()!==d) return null;
+  return isoOf(y,mo,d);
+}
+function dateInput(ph,label){
+  const i=mk('input'); i.type='text'; i.setAttribute('inputmode','numeric'); i.autocomplete='off'; i.placeholder=ph; i.setAttribute('aria-label',label);
+  const f=()=>{ const v=fmtDateDigits(i.value); if(v!==i.value) i.value=v; };
+  i.addEventListener('input',ev=>{ if(!ev.isComposing) f(); });
+  i.addEventListener('compositionend',f);
+  return i;
+}
+function dateWidget(onChange){
+  let dates=[];
+  const root=mk('div','dw'), row=mk('div','dwrow'), a=dateInput('2026-11-22','運転日'), b=dateInput('最終日(任意)','最終日(続けて運転するとき)'),
+        add=mk('button','sub','追加'), chips=mk('div','chips'), msg=mk('div','hint dwmsg');
+  add.type='button'; row.append(a,mk('span',null,'〜'),b,add); root.append(row,msg,chips);
+  const say=(t,bad)=>{ msg.textContent=t||''; msg.className='hint dwmsg'+(bad?' bad-t':''); };
+  const fire=()=>{ if(onChange) onChange(dates.slice()); };
+  const draw=()=>{
+    chips.replaceChildren(...dates.map(d=>{
+      const [y,m,dd]=d.split('-').map(Number), c=mk('span','chip',d+'('+WD[new Date(y,m-1,dd).getDay()]+')'), x=mk('button',null,'×');
+      x.type='button'; x.setAttribute('aria-label',d+'を外す');
+      x.addEventListener('click',()=>{ dates=dates.filter(q=>q!==d); draw(); fire(); });
+      c.appendChild(x); return c;
+    }));
+  };
+  function commit(){                                 // 入力欄に残っている日付を追加する。なければ何もしない(true)
+    const sa=a.value.trim(), sb=b.value.trim();
+    if(!sa&&!sb) return true;
+    const da=normDate(sa); if(!da){ say('運転日が読み取れません(例 2026-11-22)',true); return false; }
+    let list=[da];
+    if(sb){
+      const db=normDate(sb); if(!db){ say('最終日が読み取れません',true); return false; }
+      if(db<da){ say('最終日が運転日より前です',true); return false; }
+      list=[]; const [y,m,d]=da.split('-').map(Number), t=new Date(y,m-1,d);
+      for(let n=0;n<63;n++){ const s=isoOf(t.getFullYear(),t.getMonth()+1,t.getDate()); if(s>db) break; list.push(s); t.setDate(t.getDate()+1); }
+      if(list[list.length-1]!==db){ say('続けて入れられるのは63日分までです',true); return false; }
+    }
+    dates=[...new Set(dates.concat(list))].sort();
+    a.value=''; b.value=''; say(list.length>1?list.length+'日分を追加しました':''); draw(); fire(); return true;
+  }
+  add.addEventListener('click',()=>{ if(commit()) a.focus(); });
+  for(const i of [a,b]) i.addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); if(commit()) a.focus(); } });
+  return {el:root,get:()=>dates.slice(),commit,set(arr){ dates=[...new Set(arr||[])].sort(); a.value=''; b.value=''; say(''); draw(); fire(); }};
+}
+const dateW=dateWidget(onDatesChange);
+$('dwMount').appendChild(dateW.el);
+for(const id of ['d_weekday','d_holiday']) $(id).addEventListener('change',()=>{ S.daysAuto=false; dayHint(); });
+
+/* ================================================================
+   秩父鉄道の「臨時列車のお知らせ」ページからのコピペ取り込み(運行図表の「ツール」と同じ読み取り規則)
+   ページ全体をコピーして貼り付けると、時刻表の表から 種別・運転日・各駅の着発 を取り出す。
+   運転日が複数あるものは、1日ずつの登録としてまとめて送る。
+   ================================================================ */
+const X={items:[],html:null};
+const xwZen=s=>String(s==null?'':s).replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/：/g,':');
+const xwSq=s=>xwZen(s).replace(/[\s\u00a0\u3000]+/g,'');
+function xwStMap(){ const m={}; S.api.stations.forEach((o,i)=>{ m[xwSq(o.n).replace(/[(（].*?[)）]/g,'')]=i; }); return m; }
+function xwDates(t,defY){
+  t=xwZen(t); const res=[]; let y=defY, mo=null, m;
+  const re=/(?:(\d{4})年)?(?:(\d{1,2})月)?(\d{1,2})日(?:[（(]([^）)]*)[）)])?/g;
+  while((m=re.exec(t))){
+    if(m[1]) y=+m[1];
+    if(m[2]) mo=+m[2];
+    if(mo===null) continue;
+    const d=+m[3], p=m[4]||'', wm=p.match(/[日月火水木金土]/);
+    const w=wm?'日月火水木金土'.indexOf(wm[0]):new Date(y,mo-1,d).getDay();
+    res.push({y,m:mo,d,hol:(w===0||w===6||/祝/.test(p))});
+  }
+  return res;
+}
+function xwCell(t){
+  t=xwSq(t);
+  const A=t.match(/(\d{1,2}):(\d{2})着/), D=t.match(/(\d{1,2}):(\d{2})発/);
+  let a=null, d=null;
+  if(A||D){ if(A) a=Number(A[1])*60+Number(A[2]); if(D) d=Number(D[1])*60+Number(D[2]); }
+  else{ const m=t.match(/^(\d{1,2}):(\d{2})/); if(m) a=d=Number(m[1])*60+Number(m[2]); }
+  if(a===null&&d===null) return null;
+  if(a===null) a=d; if(d===null) d=a;
+  if(a>1500||d>1500) return null;
+  return [a,d];
+}
+function xwShort(title){
+  return xwZen(title).replace(/\d+月\d+日.*$/,'').replace(/[（(][^）)]*[）)]/g,'').replace(/第\d+回/g,'')
+    .replace(/≪[^≫]*≫/g,'').replace(/臨時列車|時刻表|運転|用/g,'').replace(/大会|まつり|祭り|期間|休み/g,'').replace(/\s+/g,'')||'臨時';
+}
+function xwType(label,title){
+  const s=label+' '+title; let k='local';
+  if(/SL|パレオ/.test(s)) k='sl'; else if(/回送/.test(s)) k='empty'; else if(/貨物/.test(s)) k='freight'; else if(/西武/.test(s)) k='seibu'; else if(/急行|特急/.test(s)) k='express';
+  return S.api.types[k]?k:(S.api.types.rinji?'rinji':Object.keys(S.api.types)[0]);
+}
+function xwParseDoc(html){
+  const st=S.api.stations, fmt=S.w.xStr, XW_ST=xwStMap();
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  doc.querySelectorAll('script,style,noscript').forEach(e=>e.remove());
+  doc.querySelectorAll('br').forEach(b=>b.replaceWith('\n'));
+  const body=doc.body; if(!body) return {items:[],warns:['ページを読み取れませんでした']};
+  const txt=e=>(e.textContent||'').replace(/[\u00a0\u3000]/g,' ').replace(/[ \t]+/g,' ').trim();
+  const notes={}, all=body.textContent||'';
+  const fre=/※\s*([0-9０-９]+)\s*[→＝=:：]\s*([^\n]+?)(?=※\s*[0-9０-９]+\s*[→＝=:：]|\n|$)/g; let m;
+  while((m=fre.exec(all))){ const k=xwZen(m[1]); if(!notes[k]) notes[k]=m[2].replace(/\s+/g,' ').trim(); }
+  const ym=((doc.title||'')+all).match(/(20\d\d)年/);
+  const defY=ym?+ym[1]:new Date().getFullYear();
+  const items=[], warns=[];
+  let mode=null, ctxDates=[];
+  const els=body.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,dt,dd,table');
+  for(const el of els){
+    const tag=el.tagName;
+    if(tag!=='TABLE'){
+      if(el.closest('table')) continue;
+      const t=txt(el);
+      if(/^H[1-6]$/.test(tag)){
+        if(/^運転(日|期間)/.test(t)) mode='dates';
+        else if(/^(運転区間|停車駅|使用車両|その他)/.test(t)) mode=null;
+        else { mode=null; ctxDates=[]; }
+      }else if(mode==='dates' && !/[～〜~]/.test(t)){
+        xwDates(t,defY).forEach(x=>ctxDates.push(x));
+      }
+      continue;
+    }
+    if(el.parentElement&&el.parentElement.closest('table')) continue;
+    const rows=[...el.rows].map(tr=>{
+      const cells=[];
+      [...tr.cells].forEach(c=>{ const n=Math.max(1,Math.min(+c.colSpan||1,40)), t=txt(c); for(let i=0;i<n;i++) cells.push({t,fill:i>0}); });
+      return cells;
+    });
+    const stIdx=r=>{ const k=xwSq(r[0]?r[0].t:'').replace(/[(（].*?[)）]/g,''); return (k in XW_ST)?XW_ST[k]:-1; };
+    const fs=rows.findIndex(r=>stIdx(r)>=0);
+    if(fs<0) continue;
+    const head=rows.slice(0,fs), cap=el.caption?txt(el.caption):'';
+    let title=cap, labelRows=[];
+    if(cap) labelRows=head;
+    else if(head.length>=2){ title=(head[0].find(c=>c.t)||{t:''}).t; labelRows=head.slice(1); }
+    else if(head.length===1){
+      if(head[0].some((c,i)=>i>0&&c.t&&!c.fill)) labelRows=head;
+      else title=(head[0].find(c=>c.t)||{t:''}).t;
+    }
+    const ncol=Math.max(...rows.map(r=>r.length));
+    const labels=[];
+    for(let c=1;c<ncol;c++){
+      let l=labelRows.map(r=>(r[c]?r[c].t:'')).filter(Boolean).join(' ');
+      if(!l&&c>1) l=labels[c-1]||'';
+      labels[c]=l;
+    }
+    const T=xwZen(title);
+    const hW=/平日/.test(T), hH=/休日|土休|土曜|日曜|祝日/.test(T);
+    let ds=xwDates(T,defY); if(!ds.length) ds=ctxDates.slice();
+    const seen=new Set(); ds=ds.filter(x=>{ const k=x.y+'-'+x.m+'-'+x.d; if(seen.has(k)) return false; seen.add(k); return true; });
+    const dates=ds.map(x=>isoOf(x.y,x.m,x.d)).filter(normDate).sort();
+    const explicit=(hW||hH)?[hW&&'weekday',hH&&'holiday'].filter(Boolean):null;
+    const dir=/のぼり|上り/.test(T)?'上':(/くだり|下り/.test(T)?'下':'');
+    const dayTag=(hW&&!hH)?'平':((hH&&!hW)?'休':'');
+    const short=xwShort(title);
+    const ev=T.replace(/\d+月\d+日.*$/,'').replace(/[（(][^）)]*[）)]/g,'').replace(/時刻表/g,'').replace(/\s+/g,' ').trim()||'臨時列車';
+    let seq=0;
+    for(let c=1;c<ncol;c++){
+      let stops=[], prev=-1;
+      for(const r of rows.slice(fs)){
+        const i=stIdx(r);
+        if(i<0){
+          if(r[0]&&r[0].t&&r.slice(1).some(x=>xwCell(x.t))) warns.push('「'+r[0].t+'」は図表にない駅のため読み飛ばしました('+ev+')');
+          continue;
+        }
+        const tm=r[c]?xwCell(r[c].t):null;
+        if(!tm) continue;
+        let [a,d]=tm;
+        if(prev>=0&&a<prev-720){ a+=1440; d+=1440; }
+        prev=d; stops.push([i,a,d]);
+      }
+      if(!stops.length) continue;
+      seq++;
+      const label=(labels[c]||'').replace(/\s+/g,' ').trim();
+      const nm=short+dayTag+dir+seq;
+      const bad=r=>{ warns.push('「'+nm+'」('+ev+' '+label+')は'+r+'ため取り込めません'); };
+      if(stops.length<2){ bad('駅が1つしか読み取れない'); continue; }
+      if(stops[0][1]>stops[stops.length-1][1]) stops=stops.reverse();
+      let okT=true, up=true, down=true;
+      for(let k=1;k<stops.length;k++){
+        if(stops[k][1]<stops[k-1][2]||stops[k][2]<stops[k][1]) okT=false;
+        if(stops[k][0]<=stops[k-1][0]) up=false;
+        if(stops[k][0]>=stops[k-1][0]) down=false;
+      }
+      if(!okT){ bad('時刻が前後している'); continue; }
+      if(!up&&!down){ bad('駅の並びが一方向でない'); continue; }
+      if(stops.some(s=>s[2]>1740)){ bad('時刻が翌日の範囲を超えている'); continue; }
+      const fn=[...label.matchAll(/※\s*([0-9０-９]+)/g)].map(x=>xwZen(x[1]));
+      const lab=label.replace(/※\s*[0-9０-９]+/g,'').replace(/\s+/g,'').trim();
+      const note=[ev,lab].filter(Boolean).join(' ')+fn.map(n=>notes[n]?' / ※'+n+' '+notes[n]:'').join('');
+      const a0=stops[0], z0=stops[stops.length-1];
+      items.push({ev,label,no:nm,type:xwType(label,title),stops,dates:dates.slice(),
+        note:note.slice(0,100),
+        sum:st[a0[0]].n+' '+fmt(a0[2])+' → '+st[z0[0]].n+' '+fmt(z0[1]),
+        det:stops.map(s=>st[s[0]].n+' '+fmt(s[1])+(s[2]!==s[1]?'/'+fmt(s[2]):'')).join(' → '),
+        daysAuto:!explicit, days:explicit?explicit.slice():[], on:true});
+    }
+  }
+  return {items,warns};
+}
+const xwKey=o=>JSON.stringify(o.stops);
+const xwHave=(date,o)=>S.list.some(r=>r.opDate===date&&JSON.stringify(r.stops)===xwKey(o));
+function xwMsg(t,bad){ const m=$('xwMsg'); m.textContent=t||''; m.className='msg '+(bad?'bad':'ok'); m.style.margin='0'; }
+function xwBtn(){
+  const n=X.items.filter(o=>o.on).length;
+  $('xwSave').disabled=!n; $('xwSave').textContent=n?('選んだ'+n+'本を登録'):'登録する';
+}
+function xwRender(){
+  const box=$('xwResult'); box.replaceChildren();
+  X.items.forEach(o=>{ o.dupe=!!o.dates.length&&o.dates.every(d=>xwHave(d,o)); });
+  let last=null;
+  X.items.forEach((o,i)=>{
+    if(o.ev!==last){ last=o.ev; box.appendChild(mk('div','xw-h',o.ev)); }
+    const card=mk('div','xw-card');
+    const top=mk('label','xw-top'), cb=mk('input'); cb.type='checkbox'; cb.checked=o.on;
+    cb.addEventListener('change',()=>{ o.on=cb.checked; xwBtn(); });
+    top.append(cb,mk('b',null,o.sum)); if(o.dupe) top.append(mk('span','xw-dupe','登録済みと同じ時刻'));
+    card.append(top,mk('div','xw-sub',o.label||''));
+    // 列車番号・種別
+    const r1=mk('div','xw-row'), l1=mk('label',null,'列車番号'), no=mk('input'); no.type='text'; no.maxLength=20; no.value=o.no; no.autocomplete='off';
+    no.addEventListener('input',()=>{ o.no=no.value; }); l1.appendChild(no);
+    const l2=mk('label',null,'種別'), sel=mk('select');
+    Object.entries(S.api.types).forEach(([k,v])=>{ const op=mk('option',null,v.label); op.value=k; if(k===o.type) op.selected=true; sel.appendChild(op); });
+    sel.addEventListener('change',()=>{ o.type=sel.value; }); l2.appendChild(sel); r1.append(l1,l2); card.appendChild(r1);
+    // 運転日(複数可)
+    const r2=mk('div','xw-dates'); r2.appendChild(mk('div','xw-lbl','運転日'+(o.dates.length?'':'(読み取れませんでした。入れてください)')));
+    const hint=mk('div','hint');
+    const dw=dateWidget(ds=>{ o.dates=ds; o.dupe=!!ds.length&&ds.every(d=>xwHave(d,o)); upd(); });
+    o._dw=dw; r2.append(dw.el,hint); card.appendChild(r2);
+    // ダイヤ
+    const r3=mk('div','xw-row'); r3.appendChild(mk('span',null,'ダイヤ:'));
+    const cw=mk('input'), ch=mk('input'); cw.type=ch.type='checkbox';
+    const lw=mk('label','in'), lh=mk('label','in'); lw.append(cw,' 平日'); lh.append(ch,' 休日'); r3.append(lw,lh); card.appendChild(r3);
+    function upd(){
+      if(o.daysAuto){
+        const ks=new Set(o.dates.map(kindOf)); cw.checked=ks.has('weekday'); ch.checked=ks.has('holiday');
+        const w=o.dates.filter(d=>kindOf(d)==='weekday').length;
+        hint.textContent=o.dates.length?('運転日ごとのダイヤ(平日'+w+'日・休日'+(o.dates.length-w)+'日)で登録します。'):'';
+      }else{ cw.checked=o.days.includes('weekday'); ch.checked=o.days.includes('holiday'); hint.textContent='チェックしたダイヤで、すべての運転日に登録します。'; }
+    }
+    for(const x of [cw,ch]) x.addEventListener('change',()=>{ o.daysAuto=false; o.days=['weekday','holiday'].filter((k,j)=>[cw,ch][j].checked); upd(); });
+    dw.set(o.dates);
+    const det=mk('details'); det.append(mk('summary',null,'読み取った時刻を確認'),mk('div','xw-det',o.det)); card.appendChild(det);
+    box.appendChild(card);
+  });
+  xwBtn();
+}
+function xwLoad(html){
+  const r=xwParseDoc(html); X.items=r.items;
+  const w=$('xwWarn'); w.replaceChildren();
+  if(r.warns.length){ const ul=mk('ul'); [...new Set(r.warns)].forEach(s=>ul.appendChild(mk('li',null,s))); w.appendChild(ul); }
+  if(!X.items.length){ xwMsg('時刻表を読み取れませんでした。ページの形が想定と違う可能性があります。',true); xwRender(); return false; }
+  X.items.forEach(o=>{ o.dupe=!!o.dates.length&&o.dates.every(d=>xwHave(d,o)); o.on=!o.dupe; });
+  xwMsg(X.items.length+'本の列車を読み取りました。内容を確認して、登録するものにチェックを付けてください。');
+  xwRender(); return true;
+}
+function xwFromPaste(){
+  const v=$('xwTa').value||''; let html=null;
+  if(X.html&&/<table/i.test(X.html)) html=X.html; else if(/<table/i.test(v)) html=v;
+  if(!html){ xwMsg('貼り付けた内容に時刻表(表)が見つかりません。ページ全体を全選択(Ctrl+A)してコピーし、貼り付けてください。',true); return; }
+  try{ xwLoad(html); }catch(e){ console.warn(e); xwMsg('読み取りに失敗しました: '+e.message,true); }
+}
+async function xwSave(){
+  const on=X.items.filter(o=>o.on); if(!on.length) return;
+  for(const o of on){ if(!o._dw.commit()){ xwMsg('運転日を直してください(「'+(o.no||o.sum)+'」)',true); return; } }
+  for(const o of on){
+    if(!o.dates.length){ xwMsg('運転日が未入力の列車があります(「'+(o.no||o.sum)+'」)',true); return; }
+    if(!o.daysAuto&&!o.days.length){ xwMsg('ダイヤ(平日・休日)が未選択の列車があります(「'+(o.no||o.sum)+'」)',true); return; }
+  }
+  const trains=[]; let skipped=0;
+  for(const o of on) for(const d of o.dates){
+    if(xwHave(d,o)){ skipped++; continue; }                       // 同じ日・同じ時刻がすでに登録されている分は飛ばす
+    trains.push({no:(o.no||'').trim(),type:o.type,dash:'auto',lw:'auto',note:o.note||'',opDate:d,days:o.daysAuto?[kindOf(d)]:o.days.slice(),stops:o.stops.map(s=>s.slice())});
+  }
+  if(!trains.length){ xwMsg('登録するものがありません(すべて登録済みと同じ内容です)',true); return; }
+  if(trains.length>30&&!confirm(trains.length+'件を1件ずつ送信します。時間がかかります。続けますか?')) return;
+  $('xwSave').disabled=true; let done=0;
+  try{
+    for(const t of trains){ xwMsg('送信中… '+(done+1)+'/'+trains.length); await gas('xput',{train:t}); done++; }
+    X.items=[]; xwRender(); $('xwWarn').replaceChildren(); $('xwTa').value=''; X.html=null;
+    await refresh();
+    xwMsg(done+'件を登録しました'+(skipped?('('+skipped+'件は登録済みのため飛ばしました)'):''));
+  }catch(e){
+    await refresh(); xwRender();
+    xwMsg((done?done+'件は登録できました。続きで失敗しました: ':'')+e.message+(done?'\nもう一度「登録」を押すと、登録済みの分を飛ばして続きから送ります。':''),true);
+  }
+}
+$('xwParse').addEventListener('click',xwFromPaste);
+$('xwReset').addEventListener('click',()=>{ $('xwTa').value=''; X.html=null; X.items=[]; xwRender(); $('xwWarn').replaceChildren(); xwMsg(''); });
+$('xwTa').addEventListener('paste',e=>{ const h=e.clipboardData&&e.clipboardData.getData('text/html'); X.html=h||null; setTimeout(xwFromPaste,0); });
+$('xwTa').addEventListener('input',e=>{ if(!e.target.value.trim()) X.html=null; });
+$('xwSave').addEventListener('click',xwSave);
+$('xwAll').addEventListener('click',()=>{ X.items.forEach(o=>o.on=true); xwRender(); });
+$('xwNone').addEventListener('click',()=>{ X.items.forEach(o=>o.on=false); xwRender(); });
 </script>
 </body>
 </html>
