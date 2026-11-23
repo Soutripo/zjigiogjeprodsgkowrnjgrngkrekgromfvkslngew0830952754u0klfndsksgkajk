@@ -14,17 +14,21 @@ const VIEWER_CSS=`
     font-size:14px;font-weight:700;letter-spacing:.04em;pointer-events:none;opacity:0;transition:opacity .25s}
   #toast.on{opacity:1}
   #err{display:none;padding:12px 16px;color:#fff;background:#b2452c;font-size:13px}
-#exPop{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px}
-#exPop .ex-box{width:min(480px,100%);max-height:86vh;overflow:auto;background:#fff;color:#1f2d3a;border:2px solid #1f77a6;border-radius:6px;box-shadow:0 6px 28px rgba(0,0,0,.45)}
-#exPop .ex-head{background:#1f77a6;color:#fff;font-size:18px;font-weight:700;padding:12px 16px}
-#exPop .ex-sub{padding:10px 16px 2px;font-size:13px;color:#456}
-#exPop .ex-item{padding:10px 16px;border-bottom:1px solid #d6e3ec}
-#exPop .ex-no{font-size:20px;font-weight:700}
-#exPop .ex-type{margin-left:10px;font-size:14px;font-weight:700;color:#1f77a6}
-#exPop .ex-run{margin-top:2px;font-size:16px}
-#exPop .ex-note{margin-top:2px;font-size:13px;color:#456}
-#exPop .ex-foot{padding:12px 16px;text-align:right}
-#exPop button{font:inherit;font-size:16px;font-weight:700;padding:8px 28px;border:1px solid #1f77a6;background:#1f77a6;color:#fff;border-radius:4px;cursor:pointer}
+#exPop,#infoPop{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+#exPop .ex-box,#infoPop .ex-box{width:min(480px,100%);max-height:86vh;overflow:auto;background:#fff;color:#1f2d3a;border:2px solid #1f77a6;border-radius:6px;box-shadow:0 6px 28px rgba(0,0,0,.45)}
+#exPop .ex-head,#infoPop .ex-head{background:#1f77a6;color:#fff;font-size:18px;font-weight:700;padding:12px 16px}
+#exPop .ex-sub,#infoPop .ex-sub{padding:10px 16px 2px;font-size:13px;color:#456}
+#exPop .ex-item,#infoPop .ex-item{padding:10px 16px;border-bottom:1px solid #d6e3ec}
+#exPop .ex-no,#infoPop .ex-no{font-size:20px;font-weight:700}
+#exPop .ex-type,#infoPop .ex-type{margin-left:10px;font-size:14px;font-weight:700;color:#1f77a6}
+#exPop .ex-run,#infoPop .ex-run{margin-top:2px;font-size:16px}
+#exPop .ex-note,#infoPop .ex-note{margin-top:2px;font-size:13px;color:#456}
+#exPop .ex-foot,#infoPop .ex-foot{padding:12px 16px;text-align:right}
+#exPop button,#infoPop button{font:inherit;font-size:16px;font-weight:700;padding:8px 28px;border:1px solid #1f77a6;background:#1f77a6;color:#fff;border-radius:4px;cursor:pointer}
+#infoPop{z-index:31;background:rgba(0,0,0,.6)}
+#infoPop .ex-box{border-color:#b2452c}
+#infoPop .ex-head{background:#b2452c}
+#infoPop .ex-text{padding:12px 16px 4px;font-size:16px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
 `;
 /* 表示に必要な部品(CSS と #err / #frames / #toast)は、表示するときにここで作る */
 function ensureDom(){
@@ -363,6 +367,40 @@ function exStart(){
   if(ready) init(); else fd.addEventListener('load',init,{once:true});
 }
 
+/* ===== 運行情報のポップアップ =====
+   boot() が5秒ごとに取得して window.__trainInfo に入れる運行情報(GAS)を見て、遅延・運休などの運行情報があるときは、
+   臨時列車と同じように、開いたときにポップアップで知らせる。在線モニターの「⚠ 運行情報」が出る条件(status が "delay")と同じ。
+   追加の通信はしない。同じ内容では出し直さず、内容(text)が変わったときだけ出し直す。運行情報がなくなったら閉じる。 */
+const IN={at:0,sig:null};
+function infoClose(){ const e=document.getElementById('infoPop'); if(e) e.remove(); }
+function infoFmt(v){
+  if(v==null||v==='') return '';
+  const d=new Date(v);
+  if(typeof v==='string'&&!isNaN(d.getTime())&&/\d{4}/.test(v)) return (d.getMonth()+1)+'月'+d.getDate()+'日 '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+  return String(v);
+}
+function infoPopup(text,last){
+  const mk=(tag,cls,txt)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!==undefined) e.textContent=txt; return e; };
+  infoClose();
+  const el=mk('div'); el.id='infoPop'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-labelledby','infoPopT');
+  const box=mk('div','ex-box'), h=mk('div','ex-head','⚠ 運行情報'); h.id='infoPopT'; box.appendChild(h);
+  const upd=infoFmt(last); if(upd) box.appendChild(mk('div','ex-sub','更新: '+upd));
+  box.appendChild(mk('div','ex-text',text||'運行情報があります(内容を取得できませんでした)'));
+  const foot=mk('div','ex-foot'), b=mk('button',null,'閉じる'); b.type='button'; b.addEventListener('click',infoClose); foot.appendChild(b); box.appendChild(foot);
+  el.appendChild(box); document.body.appendChild(el); b.focus();
+}
+function infoWatch(){
+  let p; try{ p=window.__trainInfo; }catch(_){ return; }
+  if(!p||!p.data||p.at===IN.at) return;                           // 新しく取得された結果だけを見る
+  IN.at=p.at;
+  const d=p.data, delay=d.status==='delay', text=String(d.text==null?'':d.text).trim();
+  const sig=delay?('delay|'+text):'normal';
+  if(sig===IN.sig) return;                                        // 同じ内容では出し直さない(5秒ごとの取得でも)
+  IN.sig=sig;
+  if(delay) infoPopup(text,d.lastUpdate); else infoClose();
+}
+function infoStart(){ infoWatch(); setInterval(infoWatch,1000); }
+
 /* unlock(鍵, {url:ログイン管理のURL, tok:通行証, dev:端末ID}) → show() の順に index.html から呼ばれる */
-window.ChichibuViewer={unlock:function(key,ctx){ EX.ctx=ctx||null; return decryptAll(key); },show:function(){ boot(); exStart(); }};
+window.ChichibuViewer={unlock:function(key,ctx){ EX.ctx=ctx||null; return decryptAll(key); },show:function(){ boot(); exStart(); infoStart(); }};
 })();
